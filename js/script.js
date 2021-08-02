@@ -11,12 +11,11 @@ console.log("Тип переменной money: " + typeof money);
 console.log("Тип переменной income: " + typeof income);
 console.log("Тип переменной deposit: " + typeof deposit);
 
-console.log("Длина строки addExpenses: " + addExpenses.length);
+
 
 console.log("Период равен " + period + " месяцев");
 console.log("Цель заработать " + mission + " рублей");
 
-console.log(addExpenses.toLowerCase().split(", "));
 
 console.log("Дневной доход составляет: " + budgetDay + " рублей");
 
@@ -25,6 +24,9 @@ if (isNaN(money))
     console.log('Неверно введенный месячный доход');
 
 addExpenses = prompt("Перечислите возможные расходы за рассчитываемый период через запятую");
+console.log("Длина строки addExpenses: " + addExpenses.length);
+
+console.log(addExpenses.toLowerCase().split(", "));
 
 deposit = confirm("Есть ли у вас депозит в банке?");
 
