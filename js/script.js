@@ -9,7 +9,7 @@ let budgetDay = money / 30;
 let expenses = [];
 
 const isNumber = function (n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
+    return !isNaN(+n) && isFinite(n);
 };
 
 const showTypeOf = function (data) {
@@ -56,8 +56,8 @@ const getStatusIncome = function (budgetDay) {
 
 const start = function () {
     do {
-        money = parseFloat(prompt("Ваш месячный доход?"));
-    } while (isNaN(money) || !money || money === null);
+        money = +(prompt("Ваш месячный доход?"));
+    } while (isNaN(money) || money === null || money < 0);
 };
 
 
