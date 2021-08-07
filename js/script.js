@@ -4,33 +4,65 @@ const isNumber = function (n) {
     return !isNaN(+n) && isFinite(n);
 };
 
+const enterValidation = function (enterFlagString, question, defaultValue) {
+    let answer;
+    do {
+        answer = prompt(question, defaultValue);
+        if (enterFlagString) { //если требуется строка
+            if (isNumber(answer))
+                alert("Некорректно введенные данные! Требуется ввести текст, а не число. Повторите попытку");
+            else
+                break;
+        }
+        else { //если требуется число
+            if (!isNumber(answer))
+                alert("Некорректно введенные данные! Требуется ввести число. Повторите попытку");
+            else
+                break;
+        }
+    } while (1);
+    return answer;
+}
+
+let money;
+
+const start = function () {
+    do {
+        money = +prompt("Ваш месячный доход?", "50000");
+    } while (isNaN(money) || money === null || money < 0);
+};
+
+start();
+
 let appData = {
     income: {},
     addIncome: [],
     expenses: {},
     addExpenses: [],
     deposit: false,
+    percentDeposit: 0,
+    moneyDeposit: 0,
     mission: 151515,
     period: 8,
-    budget: 0,
+    budget: money,
     budgetDay: 0,
     budgetMonth: 0,
     expensesMonth: 0,
     asking: function () {
-        this.addExpenses = prompt("Перечислите возможные расходы за рассчитываемый период через запятую").toLowerCase().split(", ");
-        this.deposit = confirm("Есть ли у вас депозит в банке?");
-        for (let i = 0; i < 2; i++) {
-            let key = prompt("Введите обязательную статью расходов");
-            let value;
-            do {
-                value = prompt("Во сколько это обойдется", "1000");
-                if (!isNumber(value))
-                    alert("Некорректно введенные данные! Повторите попытку");
-                else
-                    break;
-            } while (1);
-            this.expenses[key] = +value;
+
+        if (confirm("Есть ли у вас дополнительный источник заработка?")) {
+
+            let itemIncome = enterValidation(true, "Каков Ваш дополнительный заработок?", "Фриланс");
+            let cashIncome = +enterValidation(false, "Сколько Вы на этом зарабатываете?", 10000);
+            this.income[itemIncome] = cashIncome;
         }
+
+        this.addExpenses = prompt("Перечислите возможные расходы за рассчитываемый период через запятую").toLowerCase().split(", ");
+        for (let i = 0; i < 2; i++) {
+            let key = enterValidation(true, "Введите обязательную статью расходов");
+            this.expenses[key] = +enterValidation(false, "Во сколько это обойдется", "1000");
+        }
+        this.deposit = confirm("Есть ли у вас депозит в банке?");
     },
 
     getBudget: function () {
@@ -57,29 +89,31 @@ let appData = {
         else
             return ("Что-то пошло не так:(");
     },
-
-
+    getInfoDeposit: function () {
+        if (this.deposit) {
+            this.percentDeposit = enterValidation(false, "Какой годовой процент по депозиту?", 10);
+            this.moneyDeposit = enterValidation(false, "Какая сумма заложена?", 10000);
+        }
+    },
+    calcSavedMoney: function () {
+        return appData.budget * appData.period;
+    }
 };
-
-let money;
-
-const start = function () {
-    do {
-        money = +prompt("Ваш месячный доход?", "50000");
-    } while (isNaN(money) || money === null || money < 0);
-};
-
-start();
-
-appData.budget = money;
 
 appData.asking();
+appData.getInfoDeposit();
 appData.getExpensesMonth();
 appData.getBudget();
 appData.getTargetMonth();
 
 
+console.log("Дополнительные расходы за месяц: " + appData.addExpenses.map(function (str) {
+    return str[0].toUpperCase() + str.substr(1);
+}).join(", "));
+
 console.log("Сумма расходов за месяц: " + appData.expensesMonth);
+
+
 console.log(appData.getStatusIncome());
 if (appData.period > 0)
     console.log("Цель будет достигнута за " + appData.period + " месяцев(-а)");
