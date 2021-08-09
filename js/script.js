@@ -135,18 +135,19 @@ for (let key in appData) {
 //lesson09
 
 const calculateBtn = document.getElementById('start');
-const incomeAddBtn = document.getElementsByTagName('btn_plus')[0];
-const expensesAddBtn = document.getElementsByTagName('btn_plus')[1];
+const incomeAddBtn = document.getElementsByTagName('button')[0];
+const expensesAddBtn = document.getElementsByTagName('button')[1];
 const checkDeposit = document.querySelector('#deposit-check');
-const additionalIncomeItems = document.querySelectorAll('.additional_income-item');
+const additionalIncomeItem1 = document.querySelectorAll('.additional_income-item')[0];
+const additionalIncomeItem2 = document.querySelectorAll('.additional_income-item')[1];
 
-const budgetMonthVal = document.getElementsByClassName('.budget_month-value')[0];
-const budgetDayVal = document.getElementsByClassName('.budget_day-value')[0];
-const expensesMonthVal = document.getElementsByClassName('.expenses_month-value')[0];
-const additionalIncomeVal = document.getElementsByClassName('.additional_income-value')[0];
-const additionalExpensesVal = document.getElementsByClassName('.additional_expenses-value')[0];
-const incomePeriodVal = document.getElementsByClassName('.income_period-value')[0];
-const targetMonthVal = document.getElementsByClassName('.target_month-value')[0];
+const budgetMonthVal = document.getElementsByClassName('budget_month-value')[0];
+const budgetDayVal = document.getElementsByClassName('budget_day-value')[0];
+const expensesMonthVal = document.getElementsByClassName('expenses_month-value')[0];
+const additionalIncomeVal = document.getElementsByClassName('additional_income-value')[0];
+const additionalExpensesVal = document.getElementsByClassName('additional_expenses-value')[0];
+const incomePeriodVal = document.getElementsByClassName('income_period-value')[0];
+const targetMonthVal = document.getElementsByClassName('target_month-value')[0];
 
 const salaryAmount = document.querySelector('.salary-amount');
 const incomeTitle = document.querySelector('.income-title');
