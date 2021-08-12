@@ -88,24 +88,6 @@ let appData = {
     },
     reset: function () {
         this.clearAppData();
-        // budgetMonthVal.value = '';
-        // budgetDayVal.value = '';
-        // expensesMonthVal.value = '';
-        // additionalIncomeVal.value = '';
-        // additionalExpensesVal.value = '';
-        // incomePeriodVal.value = '';
-        // targetMonthVal.value = '';
-        // checkDeposit.value = '';
-        // additionalExpensesItem.value = '';
-        // depositBank.value = '';
-        // depositAmount.value = '';
-        // depositPercent.value = '';
-        // targetAmount.value = '';
-        // periodSelect.value = '';
-        // salaryAmount.value = '';
-        // additionalIncomeItems.forEach(function (item) {
-        //     item.value = '';
-        // });
         checkDeposit.disabled = false;
         periodSelect.value = 1;
         checkDeposit.checked = false;
