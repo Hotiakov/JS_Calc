@@ -21,8 +21,8 @@ const calculateBtn = document.getElementById('start'),
     targetAmount = document.querySelector('.target-amount'),
     periodSelect = document.querySelector('.period-select'),
     periodAmount = document.querySelector('.period-amount');
-let expensesItems = document.querySelectorAll('.expenses-items'),
-    incomeItems = document.querySelectorAll('.income-items');
+let expensesItems = document.getElementsByClassName('expenses-items'),
+    incomeItems = document.getElementsByClassName('income-items');
 
 const isNumber = (n) => {
     return !isNaN(+n) && isFinite(n);
@@ -40,9 +40,9 @@ const isStr = createRegularExp();
 class AppData {
     constructor() {
         this.income = {};
-        this.addIncome = [];
+        this.incomeAdd = [];
         this.expenses = {};
-        this.addExpenses = [];
+        this.expensesAdd = [];
         this.deposit = false;
         this.percentDeposit = 0;
         this.moneyDeposit = 0;
@@ -59,18 +59,10 @@ class AppData {
             return;
         }
         this.budget = +salaryAmount.value;
-        if (!this.getExpenses()) {
+        if (!this.getExpIncome()) {
             return;
         }
-        // this.getInfoDeposit();
-        if (!this.getIncome()) {
-            return;
-        }
-        if (!this.getAddExpenses()) {
-            return;
-        }
-        if (!this.getAddIncome()) {
-            alert("Наименование возможных доходов должно содержать только русские буквы, пробелы и знаки препинания!");
+        if (!this.getAddExpIncome()) {
             return;
         }
         this.getExpensesMonth();
@@ -96,7 +88,7 @@ class AppData {
             item.value = '';
             item.disabled = false;
         });
-        expensesItems.forEach(function (item, index) {
+        Array.from(expensesItems).forEach(function (item, index) {
             if (index !== 0) {
                 item.remove();
             } else {
@@ -104,7 +96,7 @@ class AppData {
             }
         });
 
-        incomeItems.forEach(function (item, index) {
+        Array.from(incomeItems).forEach(function (item, index) {
             if (index !== 0) {
                 item.remove();
             } else {
@@ -119,101 +111,79 @@ class AppData {
         budgetMonthVal.value = this.budgetMonth;
         budgetDayVal.value = this.budgetDay;
         expensesMonthVal.value = this.expensesMonth;
-        additionalExpensesVal.value = this.addExpenses.join(', ');
-        additionalIncomeVal.value = this.addIncome.join(', ');
+        additionalExpensesVal.value = this.expensesAdd.join(', ');
+        additionalIncomeVal.value = this.incomeAdd.join(', ');
         targetMonthVal.value = this.getTargetMonth();
         incomePeriodVal.value = this.calcSavedMoney();
         periodSelect.addEventListener('input', () => {
             incomePeriodVal.value = this.calcSavedMoney();
         });
     }
-    addExpensesBlock() {
-        let newExpensesItem = expensesItems[0].cloneNode(true);
-        newExpensesItem.querySelector('.expenses-title').value = "";
-        newExpensesItem.querySelector('.expenses-amount').value = "";
-        expensesAddBtn.insertAdjacentElement('beforebegin', newExpensesItem);
-        expensesItems = document.querySelectorAll('.expenses-items');
-        if (expensesItems.length === 3)
-            expensesAddBtn.style.display = 'none';
+    addExpIncBlock(items, btn) {
+        let newItem = items[0].cloneNode(true);
+        const startString = newItem.className.split('-')[0];
+        newItem.querySelector(`.${startString}-title`).value = "";
+        newItem.querySelector(`.${startString}-amount`).value = "";
+        btn.insertAdjacentElement('beforebegin', newItem);
+        if (items.length === 3)
+            btn.style.display = "none";
     }
-    addIncomeBlock() {
-        let newEIncomeItem = incomeItems[0].cloneNode(true);
-        newEIncomeItem.querySelector('.income-title').value = "";
-        newEIncomeItem.querySelector('.income-amount').value = "";
-        incomeAddBtn.insertAdjacentElement('beforebegin', newEIncomeItem);
-        incomeItems = document.querySelectorAll('.income-items');
-        if (incomeItems.length === 3)
-            incomeAddBtn.style.display = 'none';
-    }
-    getExpenses() {
+    getExpIncome() {
         let flag = true;
-        expensesItems.forEach((item) => {
-            let itemExpenses = item.querySelector('.expenses-title').value;
-            if (!isStr(itemExpenses)) {
-                alert("Наименование обязательных расходов должно содержать только русские буквы, пробелы и знаки препинания!");
+        const getValue = (item) => {
+            const startString = item.className.split("-")[0];
+            let expIncItem = item.querySelector(`.${startString}-title`).value;
+            if (!isStr(expIncItem)) {
+                alert("Наименование должно содержать только русские буквы, пробелы и знаки препинания!");
                 flag = false;
             }
-            let cashExpenses = item.querySelector('.expenses-amount').value;
-            if (!isNumber(cashExpenses)) {
-                alert("Сумма обязательного расхода должна быть числом!");
+            let cash = +item.querySelector(`.${startString}-amount`).value;
+            if (!isNumber(cash)) {
+                alert("Сумма должна быть числом!");
                 flag = false;
             }
-            if (flag)
-                if (itemExpenses !== '' && cashExpenses !== '') {
-                    this.expenses[itemExpenses] = +cashExpenses;
-                }
-        });
-        return flag;
-    }
-    getIncome() {
-        let flag = true;
-        incomeItems.forEach((item) => {
-            let itemIncome = item.querySelector('.income-title').value;
-            if (!isStr(itemIncome)) {
-                alert("Наименование дополнительного дохода должно содержать только русские буквы, пробелы и знаки препинания!");
-                flag = false;
+            if (expIncItem !== '' && cash !== '' && flag) {
+                this[startString][expIncItem] = +cash;
             }
-            let cashIncome = +item.querySelector('.income-amount').value;
-            if (!isNumber(cashIncome)) {
-                alert("Сумма дополнительного дохода должна быть числом!");
-                flag = false;
-            }
-            if (itemIncome !== '' && cashIncome !== '' && flag) {
-                this.income[itemIncome] = +cashIncome;
-            }
-        });
-        if (flag)
+        };
+        Array.from(incomeItems).forEach(getValue);
+        if (!flag)
+            return flag;
+        Array.from(expensesItems).forEach(getValue);
+        if (flag) {
             for (let key in this.income) {
                 this.incomeMonth += +this.income[key];
             }
+        }
         return flag;
     }
-    getAddExpenses() {
-        if (!isStr(additionalExpensesItem.value)) {
-            alert("Наименование возможных расходов должно содержать только русские буквы, пробелы и знаки препинания!");
-            return false;
-        }
-        let addExpenses = additionalExpensesItem.value.split(',');
-        addExpenses.forEach((item) => {
-            item = item.trim();
-            if (item !== '') {
-                this.addExpenses.push(item);
-            }
-        });
-        return true;
-    }
-    getAddIncome() {
+    getAddExpIncome() {
         let flag = true;
-        additionalIncomeItems.forEach((item) => {
-            let itemValue = item.value.trim();
+        const getValue = (item, isInput) => {
+            let itemValue = isInput ? item.value.trim() : item.trim();
             if (!isStr(itemValue)) {
                 flag = false;
             }
             if (itemValue !== '' && flag) {
-                this.addIncome.push(itemValue);
+                if (isInput)
+                    this.incomeAdd.push(itemValue);
+                else
+                    this.expensesAdd.push(itemValue);
             }
-        });
+        };
+        additionalIncomeItems.forEach((item) => getValue(item, true));
+        if (!flag) {
+            alert("Наименование возможных доходов должно содержать только русские буквы, пробелы и знаки препинания!");
+            return flag;
+        }
+        let expensesAdd = additionalExpensesItem.value.split(',');
+        expensesAdd.forEach((item) => getValue(item, false));
+        if (!flag) {
+            alert("Наименование возможных расходов должно содержать только русские буквы, пробелы и знаки препинания!");
+            return flag;
+        }
         return flag;
+
     }
     getBudget() {
         this.budgetMonth = this.budget + this.incomeMonth - this.expensesMonth;
@@ -252,9 +222,9 @@ class AppData {
     }
     clearAppData() {
         this.income = {};
-        this.addIncome = [];
+        this.incomeAdd = [];
         this.expenses = {};
-        this.addExpenses = [];
+        this.expensesAdd = [];
         this.deposit = false;
         this.percentDeposit = 0;
         this.moneyDeposit = 0;
@@ -269,9 +239,9 @@ class AppData {
 
         cancelBtn.addEventListener('click', this.reset.bind(this));
 
-        expensesAddBtn.addEventListener('click', this.addExpensesBlock);
+        expensesAddBtn.addEventListener('click', () => this.addExpIncBlock(expensesItems, expensesAddBtn));
 
-        incomeAddBtn.addEventListener('click', this.addIncomeBlock);
+        incomeAddBtn.addEventListener('click', () => this.addExpIncBlock(incomeItems, incomeAddBtn));
 
         periodSelect.addEventListener('input', () => {
             periodAmount.textContent = periodSelect.value;
