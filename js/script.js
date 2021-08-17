@@ -35,6 +35,22 @@ const createRegularExp = function () {
     };
 };
 
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
 const isStr = createRegularExp();
 
 class AppData {
@@ -51,6 +67,184 @@ class AppData {
         this.budgetMonth = 0;
         this.expensesMonth = 0;
         this.incomeMonth = 0;
+    }
+
+
+    restoreData() {
+        if (this.checkCookie()) {
+            if (getCookie("isLoad") === "true") {
+                this.setDataResult();
+            }
+            else {
+                this.setDataEnter();
+            }
+        }
+        else
+            this.clearSavedData();
+    }
+
+    saveDataResult() {
+        this.clearSavedData();
+        localStorage.setItem("budgetMonthVal", budgetMonthVal.value);
+        localStorage.setItem("budgetDayVal", budgetDayVal.value);
+        localStorage.setItem("expensesMonthVal", expensesMonthVal.value);
+        localStorage.setItem("additionalIncomeVal", additionalIncomeVal.value);
+        localStorage.setItem("additionalExpensesVal", additionalExpensesVal.value);
+        localStorage.setItem("incomePeriodVal", incomePeriodVal.value);
+        localStorage.setItem("targetMonthVal", targetMonthVal.value);
+
+        document.cookie = "budgetMonthVal=" + budgetMonthVal.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "budgetDayVal=" + budgetDayVal.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "expensesMonthVal=" + expensesMonthVal.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "additionalIncomeVal=" + additionalIncomeVal.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "additionalExpensesVal=" + additionalExpensesVal.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "incomePeriodVal=" + incomePeriodVal.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "targetMonthVal=" + targetMonthVal.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "isLoad=true; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+    }
+    saveDataEnter() {
+        if (!this.checkCookie()) {
+            this.clearSavedData();
+            return;
+        }
+        if (getCookie("isLoad") === "true")
+            return;
+        this.clearSavedData();
+        localStorage.setItem("checkDeposit", checkDeposit.checked);
+        localStorage.setItem("salaryAmount", salaryAmount.value);
+        localStorage.setItem("depositBank", depositBank.value);
+        localStorage.setItem("depositAmount", depositAmount.value);
+        localStorage.setItem("depositPercent", depositPercent.value);
+        localStorage.setItem("targetAmount", targetAmount.value);
+        localStorage.setItem("periodSelect", periodSelect.value);
+        localStorage.setItem("additionalExpensesItem", additionalExpensesItem.value);
+        document.cookie = "periodSelect=" + periodSelect.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "targetAmount=" + targetAmount.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "depositPercent=" + depositPercent.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "depositAmount=" + depositAmount.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "depositBank=" + depositBank.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "checkDeposit=" + checkDeposit.checked + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "salaryAmount=" + salaryAmount.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "additionalExpensesItem=" + additionalExpensesItem.value + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "isLoad=false; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+
+        let expensesTitles = "";
+        let expensesAmount = "";
+        let incomeTitles = "";
+        let incomeAmount = "";
+        [...expensesItems].forEach((item) => {
+            expensesTitles += item.querySelector(".expenses-title").value + "|";
+            expensesAmount += item.querySelector(".expenses-amount").value + "|";
+        });
+        [...incomeItems].forEach((item) => {
+            incomeTitles += item.querySelector(".income-title").value + "|";
+            incomeAmount += item.querySelector(".income-amount").value + "|";
+        });
+
+        let AII = additionalIncomeItems[0].value + "|" + additionalIncomeItems[1].value;
+        localStorage.setItem("additionalIncomeItems", AII);
+        localStorage.setItem("incomeTitles", incomeTitles);
+        localStorage.setItem("incomeAmount", incomeAmount);
+        localStorage.setItem("expensesTitles", expensesTitles);
+        localStorage.setItem("expensesAmount", expensesAmount);
+        document.cookie = "additionalIncomeItems=" + AII + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "incomeTitles=" + incomeTitles + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "incomeAmount=" + incomeAmount + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "expensesTitles=" + expensesTitles + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        document.cookie = "expensesAmount=" + expensesAmount + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+    }
+    setDataResult() {
+        let inputs = document.querySelectorAll('[type="text"]');
+        inputs.forEach((item) => {
+            item.disabled = true;
+        });
+        checkDeposit.disabled = true;
+        calculateBtn.style.display = 'none';
+        cancelBtn.style.display = 'inline-block';
+
+        budgetMonthVal.value = localStorage.getItem("budgetMonthVal");
+        budgetDayVal.value = localStorage.getItem("budgetDayVal");
+        expensesMonthVal.value = localStorage.getItem("expensesMonthVal");
+        additionalIncomeVal.value = localStorage.getItem("additionalIncomeVal");
+        additionalExpensesVal.value = localStorage.getItem("additionalExpensesVal");
+        incomePeriodVal.value = localStorage.getItem("incomePeriodVal");
+        targetMonthVal.value = localStorage.getItem("targetMonthVal");
+    }
+    setDataEnter() {
+        checkDeposit.checked = (localStorage.getItem("checkDeposit") === "true");
+        depositBank.value = localStorage.getItem("depositBank");
+        if (checkDeposit) {
+            this.depositHandler();
+            if (depositBank.value === "other") {
+                depositPercent.style.display = "inline-block";
+            }
+        }
+        salaryAmount.value = localStorage.getItem("salaryAmount");
+        if (salaryAmount.value)
+            calculateBtn.disabled = false;
+        depositBank.value = localStorage.getItem("depositBank");
+        depositAmount.value = localStorage.getItem("depositAmount");
+        depositPercent.value = localStorage.getItem("depositPercent");
+        targetAmount.value = localStorage.getItem("targetAmount");
+        periodSelect.value = localStorage.getItem("periodSelect");
+        periodAmount.textContent = periodSelect.value;
+        additionalExpensesItem.value = localStorage.getItem("additionalExpensesItem");
+
+        let expensesTitles = localStorage.getItem("expensesTitles").split("|");
+        let expensesAmount = localStorage.getItem("expensesAmount").split("|");
+        let incomeTitles = localStorage.getItem("incomeTitles").split("|");
+        let incomeAmount = localStorage.getItem("incomeAmount").split("|");
+        let AII = localStorage.getItem("additionalIncomeItems").split("|");
+        for (let i = 2; i < Math.max(expensesTitles.length, expensesAmount.length); i++) {
+            if (expensesTitles[i - 2] === "" && expensesAmount[i - 2] === "") {
+                expensesTitles.splice(i - 2, 1);
+                expensesAmount.splice(i - 2, 1);
+                i--;
+                continue;
+            }
+            this.addExpIncBlock(expensesItems, expensesAddBtn);
+        }
+        for (let i = 2; i < Math.max(incomeTitles.length, incomeAmount.length); i++) {
+            if (incomeTitles[i - 2] === "" && incomeAmount[i - 2] === "") {
+                incomeTitles.splice(i - 2, 1);
+                incomeAmount.splice(i - 2, 1);
+                i--;
+                continue;
+            }
+            this.addExpIncBlock(incomeItems, incomeAddBtn);
+        }
+        [...expensesItems].forEach((item, index) => {
+            item.querySelector(".expenses-title").value = expensesTitles[index] || "";
+            item.querySelector(".expenses-amount").value = expensesAmount[index] || "";
+        });
+        [...incomeItems].forEach((item, index) => {
+            item.querySelector(".income-title").value = incomeTitles[index] || "";
+            item.querySelector(".income-amount").value = incomeAmount[index] || "";
+        });
+        additionalIncomeItems[0].value = AII[0] || "";
+        additionalIncomeItems[1].value = AII[1] || "";
+    }
+    checkCookie() {
+        let cookie = document.cookie.split("; ");
+        if (cookie.length !== localStorage.length + 1) //+1 т.к. isLoad
+            return false;
+        let keys = Object.keys(localStorage);
+        for (let key of keys) {
+            if (localStorage.getItem(key) !== getCookie(key))
+                return false;
+        }
+        return true;
+    }
+    clearSavedData() {
+        localStorage.clear();
+        let cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i];
+            let eqPos = cookie.indexOf("=");
+            let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        }
     }
     start() {
         this.clearAppData();
@@ -80,6 +274,7 @@ class AppData {
         checkDeposit.disabled = true;
         calculateBtn.style.display = 'none';
         cancelBtn.style.display = 'inline-block';
+        this.saveDataResult();
     }
     reset() {
         this.clearAppData();
@@ -113,6 +308,7 @@ class AppData {
         this.deposit = false;
         this.depositHandler();
         depositPercent.style.display = "none";
+        this.clearSavedData();
     }
     showResult() {
         budgetMonthVal.value = this.budgetMonth;
@@ -314,6 +510,7 @@ class AppData {
             if (salaryAmount.value !== "")
                 calculateBtn.disabled = false;
         });
+        window.addEventListener("unload", this.saveDataEnter.bind(this));
     }
 }
 
@@ -321,5 +518,6 @@ class AppData {
 
 const appData = new AppData();
 appData.eventListeners();
+appData.restoreData();
 
 
