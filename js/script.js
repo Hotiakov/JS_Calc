@@ -66,6 +66,9 @@ class AppData {
             return;
         }
         this.getExpensesMonth();
+        if (!this.getInfoDeposit()) {
+            return;
+        }
         this.getBudget();
         this.getTargetMonth();
 
@@ -106,6 +109,10 @@ class AppData {
         periodAmount.textContent = 1;
         cancelBtn.style.display = 'none';
         calculateBtn.style.display = 'inline-block';
+
+        this.deposit = false;
+        this.depositHandler();
+        depositPercent.style.display = "none";
     }
     showResult() {
         budgetMonthVal.value = this.budgetMonth;
@@ -186,7 +193,8 @@ class AppData {
 
     }
     getBudget() {
-        this.budgetMonth = this.budget + this.incomeMonth - this.expensesMonth;
+        const monthDeposit = this.moneyDeposit * (this.percentDeposit / 100);
+        this.budgetMonth = this.budget + this.incomeMonth - this.expensesMonth + monthDeposit;
         this.budgetDay = Math.floor(this.budgetMonth / 30);
     }
     getTargetMonth() {
@@ -211,12 +219,28 @@ class AppData {
         else
             return ("Что-то пошло не так:(");
     }
-    // getInfoDeposit() {
-    //     if (this.deposit) {
-    //         this.percentDeposit = enterValidation(false, "Какой годовой процент по депозиту?", 10);
-    //         this.moneyDeposit = enterValidation(false, "Какая сумма заложена?", 10000);
-    //     }
-    // }
+    getInfoDeposit() {
+        if (this.deposit) {
+            if (!isNumber(depositAmount.value)) {
+                alert("Сумма депозита должна быть числом!");
+                return false;
+            }
+            this.percentDeposit = depositAmount.value;
+            if (!isNumber(depositPercent.value)) {
+                alert("Процент по депозиту должен быть числом!");
+                calculateBtn.disabled = true;
+                return false;
+            }
+            if (depositPercent.value < 0 || depositPercent.value > 100) {
+                alert("Процент должен быть числом от 0 до 100!");
+                calculateBtn.disabled = true;
+                return false;
+            }
+            this.moneyDeposit = depositPercent.value;
+            return true;
+        }
+        return true;
+    }
     calcSavedMoney() {
         return this.budget * periodSelect.value;
     }
@@ -225,7 +249,6 @@ class AppData {
         this.incomeAdd = [];
         this.expenses = {};
         this.expensesAdd = [];
-        this.deposit = false;
         this.percentDeposit = 0;
         this.moneyDeposit = 0;
         this.budget = 0;
@@ -233,6 +256,34 @@ class AppData {
         this.budgetMonth = 0;
         this.expensesMonth = 0;
         this.incomeMonth = 0;
+    }
+    changePercent() {
+        const selectValue = this.value;
+        if (selectValue === "other") {
+            depositPercent.style.display = "inline-block";
+            depositPercent.value = 0;
+        }
+        else {
+            depositPercent.style.display = "none";
+            depositPercent.value = selectValue;
+        }
+    }
+    depositHandler() {
+        if (checkDeposit.checked) {
+            depositBank.style.display = "inline-block";
+            depositAmount.style.display = "inline-block";
+            this.deposit = true;
+            depositBank.addEventListener("change", this.changePercent);
+        }
+        else {
+            calculateBtn.disabled = false;
+            depositBank.style.display = "none";
+            depositAmount.style.display = "none";
+            depositBank.value = "";
+            depositAmount.value = "";
+            this.deposit = false;
+            depositBank.removeEventListener("change", this.changePercent);
+        }
     }
     eventListeners() {
         calculateBtn.addEventListener('click', this.start.bind(this));
@@ -255,6 +306,13 @@ class AppData {
             else {
                 calculateBtn.disabled = false;
             }
+        });
+
+        checkDeposit.addEventListener('change', this.depositHandler.bind(this));
+
+        depositPercent.addEventListener("input", () => {
+            if (salaryAmount.value !== "")
+                calculateBtn.disabled = false;
         });
     }
 }
